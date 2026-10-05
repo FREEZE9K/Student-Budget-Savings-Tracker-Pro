@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSFiddle q3zw6on2</title>
+
+  <style>
+    
+  </style>
+
+  
+</head>
+<body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Budget & Savings Tracker Pro</title>
+    <!-- Include Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border: #e5e7eb;
+            --advice-bg: #eef2ff;
+            --badge-locked: #e5e7eb;
+            --badge-locked-text: #9ca3af;
+        }
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --advice-bg: #1e1b4b;
+            --badge-locked: #334155;
+            --badge-locked-text: #64748b;
+        }
+
+        /* Avatar Frame Styles */
+        body.frame-gold .user-avatar { border: 4px solid #f59e0b !important; }
+        body.frame-neon .user-avatar { border: 4px solid #10b981 !important; box-shadow: 0 0 10px #10b981; }
+        body.frame-cosmic .user-avatar { border: 4px solid #8b5cf6 !important; box-shadow: 0 0 10px #8b5cf6; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* Login Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .modal h2 { margin-bottom: 20px; color: var(--primary); }
+
+        /* Header Navigation */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 3px solid transparent;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hidden { display: none !important; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Gamification & XP Bar */
+        .rank-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .streak-card {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .xp-bar-container {
+            background: var(--border);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .xp-bar-fill {
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .badge-item {
+            background: var(--badge-locked);
+            color: var(--badge-locked-text);
+            border-radius: 10px;
+            padding: 10px 6px;
+            text-align: center;
+            opacity: 0.5;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+
+        .badge-item.unlocked {
+            background: var(--advice-bg);
+            color: var(--text-main);
+            border: 2px solid var(--primary);
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        .badge-icon { font-size: 1.6rem; display: block; margin-bottom: 2px; }
+        .badge-title { font-weight: bold; font-size: 0.75rem; }
+
+        /* Quick Presets & Form Elements */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .preset-btn {
+            background-color: var(--bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .preset-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 600; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+        }
+        input:focus, select:focus { border-color: var(--primary); }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover { background-color: var(--primary-hover); }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            width: auto;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+        .btn-secondary:hover { background-color: var(--border); color: var(--text-main); }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #059669; }
+
+        /* Stats & Progress Bars */
+        .stat-val { font-size: 1.7rem; font-weight: bold; }
+        .stat-val.positive { color: var(--success); }
+        .stat-val.negative { color: var(--danger); }
+
+        .progress-container {
+            background-color: var(--border);
+            border-radius: 8px;
+            height: 12px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .progress-bar {
+            background-color: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Expense List */
+        .history-list { list-style: none; max-height: 300px; overflow-y: auto; }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .history-item:last-child { border-bottom: none; }
+        .item-info span { display: block; }
+        .item-title { font-weight: 600; }
+        .item-sub { font-size: 0.75rem; color: var(--text-muted); }
+
+        .receipt-preview {
+            max-width: 40px;
+            max-height: 40px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+            object-fit: cover;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            width: auto;
+            font-size: 1.2rem;
+            padding: 0 5px;
+        }
+
+        /* Result Callout Boxes */
+        .calc-result, .challenge-box, .advice-box {
+            background: var(--advice-bg);
+            border-left: 4px solid var(--primary);
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        /* Print Override */
+        @media print {
+            body { background: white; color: black; padding: 0; }
+            .header-controls, #loginModal, button, .delete-btn, .preset-grid, form, input, select { display: none !important; }
+            .card { box-shadow: none; border: 1px solid #ccc; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal">
+            <h2 data-i18n="login_title">Student Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="usernameInput" data-i18n-ph="ph_username" placeholder="Enter Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="passwordInput" data-i18n-ph="ph_password" placeholder="Enter Password" required>
+                </div>
+                <button type="submit" data-i18n="btn_signin">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div class="container hidden" id="appContainer">
+        <header>
+            <div class="user-profile">
+                <div class="user-avatar" id="avatarDisplay">🎓</div>
+                <div>
+                    <h2><span data-i18n="welcome">Welcome</span>, <span id="userDisplayName">Student</span>!</h2>
+                    <span class="rank-badge" id="userRank">Level 1: Novice Saver</span>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                        XP: <span id="xpDisplay">0</span> / <span id="nextXpDisplay">100</span>
+                    </div>
+                    <div class="xp-bar-container" style="width: 140px;">
+                        <div class="xp-bar-fill" id="xpBarFill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <select id="langSelect" class="btn-secondary" style="width: auto; padding: 4px 8px;">
+                    <option value="en">🌐 English</option>
+                    <option value="ja">🌐 日本語</option>
+                    <option value="ko">🌐 한국어</option>
+                </select>
+                <button class="btn-secondary" id="exportCsvBtn">📥 CSV</button>
+                <button class="btn-secondary" id="exportJsonBtn" data-i18n="btn_backup">💾 Backup JSON</button>
+                <button class="btn-secondary" id="importJsonBtn" data-i18n="btn_import">📂 Import JSON</button>
+                <input type="file" id="jsonFileInput" accept=".json" class="hidden">
+                <button class="btn-secondary" id="printReportBtn" data-i18n="btn_print">🖨 Print</button>
+                <button class="btn-secondary" id="themeBtn">🌙 Dark Mode</button>
+                <button class="btn-secondary" id="logoutBtn" data-i18n="btn_logout">Logout</button>
+            </div>
+        </header>
+
+        <!-- Dynamic Overview Cards -->
+        <div class="grid">
+            <div class="card streak-card">
+                <div>
+                    <h3 style="color: rgba(255,255,255,0.9);" data-i18n="card_streak">Savings Streak</h3>
+                    <div class="stat-val" style="color: white;" id="streakCount">0 Days 🔥</div>
+                </div>
+                <div style="font-size: 2.5rem;">🔥</div>
+            </div>
+            <div class="card">
+                <h3 data-i18n="card_allowance">Allowance</h3>
+                <div class="stat-val" id="displayAllowance">$0.00</div>
+            </div>
+            <div class="card">
+                <h3 data-i18n="card_spent">Total Spent</h3>
+                <div class="stat-val negative" id="displaySpent">$0.00</div>
+            </div>
+            <div class="card">
+                <h3 data-i18n="card_balance">Remaining Balance</h3>
+                <div class="stat-val positive" id="displayBalance">$0.00</div>
+            </div>
+        </div>
+
+        <!-- Section 1: Charts & Data Analytics -->
+        <div class="grid">
+            <div class="card">
+                <h3 data-i18n="title_cat_breakdown">Category Breakdown</h3>
+                <div style="max-height: 220px; position: relative;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3 data-i18n="title_spending_trend">Spending Trend</h3>
+                <div style="max-height: 220px; position: relative;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3 data-i18n="title_budget_actual">Budget vs. Actual</h3>
+                <div id="budgetProgressList">
+                    <!-- Dynamically populated category limits -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges & Achievements Section -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 data-i18n="title_badges">Badges & Achievements</h3>
+            <div class="badges-grid">
+                <div class="badge-item" id="badge_firstExpense">
+                    <span class="badge-icon">📝</span>
+                    <span class="badge-title" data-i18n="badge_first">First Record</span>
+                </div>
+                <div class="badge-item" id="badge_saved100">
+                    <span class="badge-icon">💰</span>
+                    <span class="badge-title" data-i18n="badge_saved">Saved $100</span>
+                </div>
+                <div class="badge-item" id="badge_streak3">
+                    <span class="badge-icon">⚡</span>
+                    <span class="badge-title" data-i18n="badge_streak">3-Day Streak</span>
+                </div>
+                <div class="badge-item" id="badge_goalReached">
+                    <span class="badge-icon">🏆</span>
+                    <span class="badge-title" data-i18n="badge_goal">Goal Reached</span>
+                </div>
+                <div class="badge-item" id="badge_fiveExpenses">
+                    <span class="badge-icon">📊</span>
+                    <span class="badge-title" data-i18n="badge_five">5 Tracker</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Inputs, Customization & Smart Calculators -->
+        <div class="grid">
+            <!-- Transaction Form & Presets -->
+            <div class="card">
+                <h3 data-i18n="title_set_allowance">Set Allowance & Add Expense</h3>
+                <form id="allowanceForm" class="form-group">
+                    <label for="allowanceInput" data-i18n="lbl_allowance">Set/Update Total Allowance ($)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" id="allowanceInput" placeholder="e.g. 200" step="0.01" required>
+                        <button type="submit" style="width: auto;" data-i18n="btn_set">Set</button>
+                    </div>
+                </form>
+
+                <hr style="margin: 15px 0; border: none; border-top: 1px solid var(--border);">
+
+                <label data-i18n="lbl_presets">Quick Presets</label>
+                <div class="preset-grid">
+                    <button class="preset-btn" onclick="addPresetExpense('School Lunch', 5.00, 'Food & Snacks')">🍱 +$5 Lunch</button>
+                    <button class="preset-btn" onclick="addPresetExpense('Bus Fare', 2.00, 'Transportation')">🚌 +$2 Bus</button>
+                    <button class="preset-btn" onclick="addPresetExpense('Textbook', 10.00, 'School Supplies')">📚 +$10 Books</button>
+                    <button class="preset-btn" onclick="addPresetExpense('Snack', 3.00, 'Food & Snacks')">🍫 +$3 Snack</button>
+                </div>
+
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label for="expenseTitle" data-i18n="lbl_expense_desc">Expense Description</label>
+                        <input type="text" id="expenseTitle" data-i18n-ph="ph_expense_desc" placeholder="e.g. Books, Snacks" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseAmount" data-i18n="lbl_amount">Amount ($)</label>
+                        <input type="number" id="expenseAmount" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseCategory" data-i18n="lbl_category">Category</label>
+                        <select id="expenseCategory">
+                            <option value="Food & Snacks" data-i18n="cat_food">Food & Snacks</option>
+                            <option value="School Supplies" data-i18n="cat_supplies">School Supplies</option>
+                            <option value="Transportation" data-i18n="cat_transport">Transportation</option>
+                            <option value="Entertainment" data-i18n="cat_entertainment">Entertainment</option>
+                            <option value="Other" data-i18n="cat_other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="receiptInput" data-i18n="lbl_receipt">Receipt Image (Optional)</label>
+                        <input type="file" id="receiptInput" accept="image/*">
+                    </div>
+                    <button type="submit" data-i18n="btn_add_expense">Add Expense</button>
+                </form>
+            </div>
+
+            <!-- Smart Financial Tools: Bucket Splitter & "Can I Afford This?" -->
+            <div class="card">
+                <h3 data-i18n="title_pot_splitter">Pot Splitter (Rule-of-Thumb)</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;" data-i18n="sub_pot_splitter">Allocates allowance into 50% Everyday, 30% Savings, 20% Fun.</p>
+                <div id="potSplitterDisplay" class="calc-result">
+                    <div><b data-i18n="pot_everyday">Everyday (50%):</b> $0.00</div>
+                    <div><b data-i18n="pot_savings">Savings (30%):</b> $0.00</div>
+                    <div><b data-i18n="pot_fun">Fun/Wishlist (20%):</b> $0.00</div>
+                </div>
+
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
+
+                <h3 data-i18n="title_afford_calc">"Can I Afford This?" Calculator</h3>
+                <form id="affordForm">
+                    <div class="form-group">
+                        <label for="itemPrice" data-i18n="lbl_purchase_price">Desired Purchase Price ($)</label>
+                        <input type="number" id="itemPrice" placeholder="e.g. 60" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetDays" data-i18n="lbl_target_days">Target Goal (Days)</label>
+                        <input type="number" id="targetDays" placeholder="e.g. 14" required>
+                    </div>
+                    <button type="submit" data-i18n="btn_calc_pace">Calculate Pace</button>
+                </form>
+                <div id="affordResult" class="calc-result hidden"></div>
+            </div>
+
+            <!-- Savings Goals & Customizations -->
+            <div class="card">
+                <h3 data-i18n="title_savings_goal">Savings Goal</h3>
+                <form id="savingsGoalForm" class="form-group">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" id="goalInput" data-i18n-ph="ph_target" placeholder="Target ($)" step="0.01" required>
+                        <button type="submit" style="width: auto;" data-i18n="btn_set">Set</button>
+                    </div>
+                </form>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85rem;">
+                        <span data-i18n="lbl_progress">Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);" id="goalStatus">Current Goal: $0.00</p>
+                </div>
+
+                <hr style="margin: 15px 0; border: none; border-top: 1px solid var(--border);">
+
+                <h3 data-i18n="title_avatar_custom">Avatar Customization</h3>
+                <div class="form-group">
+                    <label for="frameSelect" data-i18n="lbl_unlock_frame">Unlockable Avatar Frame</label>
+                    <select id="frameSelect">
+                        <option value="none" data-i18n="opt_frame_default">Default Frame</option>
+                        <option value="frame-gold" data-i18n="opt_frame_gold">Gold Border (Unlocked at 100 XP)</option>
+                        <option value="frame-neon" data-i18n="opt_frame_neon">Neon Emerald (Unlocked at 250 XP)</option>
+                        <option value="frame-cosmic" data-i18n="opt_frame_cosmic">Cosmic Purple (Unlocked at 500 XP)</option>
+                    </select>
+                </div>
+
+                <h3 data-i18n="title_fin_advice">Financial Advice</h3>
+                <div class="advice-box" id="adviceText" data-i18n="advice_default">
+                    Set your monthly allowance to receive tailored financial tips!
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Savings Challenges -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 data-i18n="title_challenges">Savings Challenges</h3>
+            <div class="grid" style="margin-bottom: 0;">
+                <div class="challenge-box">
+                    <h4>📅 <span data-i18n="challenge_52w">52-Week Challenge</span> (<span data-i18n="lbl_week">Week</span> <span id="currentWeekNum">1</span>)</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0;" data-i18n="sub_52w">Save $1 this week, $2 next week, increasing weekly!</p>
+                    <button id="completeWeekBtn" class="btn-success" style="margin-top: 6px;"><span data-i18n="btn_deposit">Deposit</span> $<span id="weekDepositAmount">1</span> & <span data-i18n="btn_complete">Complete</span></button>
+                </div>
+                <div class="challenge-box">
+                    <h4>🚫 <span data-i18n="challenge_nospend">No-Spend Weekend Challenge</span></h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0;" data-i18n="sub_nospend">Record 0 non-essential spending on Saturday & Sunday.</p>
+                    <button id="claimNoSpendBtn" class="btn-secondary" style="margin-top: 6px;" data-i18n="btn_claim_xp">Claim +50 XP Reward</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: History, Search & Filter -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                <h3 data-i18n="title_expense_history">Expense History</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="searchInput" data-i18n-ph="ph_search" placeholder="🔍 Search description..." style="width: 180px;">
+                    <select id="filterCategory" style="width: 160px;">
+                        <option value="ALL" data-i18n="cat_all">All Categories</option>
+                        <option value="Food & Snacks" data-i18n="cat_food">Food & Snacks</option>
+                        <option value="School Supplies" data-i18n="cat_supplies">School Supplies</option>
+                        <option value="Transportation" data-i18n="cat_transport">Transportation</option>
+                        <option value="Entertainment" data-i18n="cat_entertainment">Entertainment</option>
+                        <option value="Other" data-i18n="cat_other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <ul class="history-list" id="expenseList">
+                <!-- Dynamically Populated -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Image Modal for Receipts -->
+    <div id="imageModal" class="modal-overlay hidden" onclick="this.classList.add('hidden')">
+        <div class="modal" style="max-width: 600px; background: transparent; box-shadow: none;">
+            <img id="fullReceiptImg" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;">
+        </div>
+    </div>
+
+    <script>
+        // Language Dictionaries (Translations)
+        const i18n = {
+            en: {
+                login_title: "Student Login",
+                ph_username: "Enter Username",
+                ph_password: "Enter Password",
+                btn_signin: "Sign In",
+                welcome: "Welcome",
+                btn_backup: "💾 Backup JSON",
+                btn_import: "📂 Import JSON",
+                btn_print: "🖨 Print",
+                btn_logout: "Logout",
+                card_streak: "Savings Streak",
+                card_allowance: "Allowance",
+                card_spent: "Total Spent",
+                card_balance: "Remaining Balance",
+                title_cat_breakdown: "Category Breakdown",
+                title_spending_trend: "Spending Trend",
+                title_budget_actual: "Budget vs. Actual",
+                title_badges: "Badges & Achievements",
+                badge_first: "First Record",
+                badge_saved: "Saved $100",
+                badge_streak: "3-Day Streak",
+                badge_goal: "Goal Reached",
+                badge_five: "5 Tracker",
+                title_set_allowance: "Set Allowance & Add Expense",
+                lbl_allowance: "Set/Update Total Allowance ($)",
+                btn_set: "Set",
+                lbl_presets: "Quick Presets",
+                lbl_expense_desc: "Expense Description",
+                ph_expense_desc: "e.g. Books, Snacks",
+                lbl_amount: "Amount ($)",
+                lbl_category: "Category",
+                cat_food: "Food & Snacks",
+                cat_supplies: "School Supplies",
+                cat_transport: "Transportation",
+                cat_entertainment: "Entertainment",
+                cat_other: "Other",
+                cat_all: "All Categories",
+                lbl_receipt: "Receipt Image (Optional)",
+                btn_add_expense: "Add Expense",
+                title_pot_splitter: "Pot Splitter (Rule-of-Thumb)",
+                sub_pot_splitter: "Allocates allowance into 50% Everyday, 30% Savings, 20% Fun.",
+                pot_everyday: "Everyday (50%):",
+                pot_savings: "Savings (30%):",
+                pot_fun: "Fun/Wishlist (20%):",
+                title_afford_calc: '"Can I Afford This?" Calculator',
+                lbl_purchase_price: "Desired Purchase Price ($)",
+                lbl_target_days: "Target Goal (Days)",
+                btn_calc_pace: "Calculate Pace",
+                title_savings_goal: "Savings Goal",
+                ph_target: "Target ($)",
+                lbl_progress: "Progress",
+                goal_current: "Current Goal:",
+                title_avatar_custom: "Avatar Customization",
+                lbl_unlock_frame: "Unlockable Avatar Frame",
+                opt_frame_default: "Default Frame",
+                opt_frame_gold: "Gold Border (Unlocked at 100 XP)",
+                opt_frame_neon: "Neon Emerald (Unlocked at 250 XP)",
+                opt_frame_cosmic: "Cosmic Purple (Unlocked at 500 XP)",
+                title_fin_advice: "Financial Advice",
+                advice_default: "Set your monthly allowance to receive tailored financial tips!",
+                title_challenges: "Savings Challenges",
+                challenge_52w: "52-Week Challenge",
+                lbl_week: "Week",
+                sub_52w: "Save $1 this week, $2 next week, increasing weekly!",
+                btn_deposit: "Deposit",
+                btn_complete: "Complete",
+                challenge_nospend: "No-Spend Weekend Challenge",
+                sub_nospend: "Record 0 non-essential spending on Saturday & Sunday.",
+                btn_claim_xp: "Claim +50 XP Reward",
+                title_expense_history: "Expense History",
+                ph_search: "🔍 Search description...",
+                no_matching: "No matching expenses found.",
+                level_title: "Level",
+                rank_saver: "Saver",
+                daily_total: "Daily Total Spent ($)"
+            },
+            ja: {
+                login_title: "学生ログイン",
+                ph_username: "ユーザー名を入力",
+                ph_password: "パスワードを入力",
+                btn_signin: "サインイン",
+                welcome: "ようこそ",
+                btn_backup: "💾 JSONバックアップ",
+                btn_import: "📂 JSONインポート",
+                btn_print: "🖨 印刷",
+                btn_logout: "ログアウト",
+                card_streak: "貯金ストリーク",
+                card_allowance: "今月のこづかい",
+                card_spent: "支出合計",
+                card_balance: "残高",
+                title_cat_breakdown: "カテゴリ別内訳",
+                title_spending_trend: "支出のトレンド",
+                title_budget_actual: "予算 vs 実績",
+                title_badges: "バッジと実績",
+                badge_first: "初記録",
+                badge_saved: "$100貯金",
+                badge_streak: "3日連続",
+                badge_goal: "目標達成",
+                badge_five: "5回記録",
+                title_set_allowance: "お小遣い設定と支出の追加",
+                lbl_allowance: "お小遣いの設定/更新 ($)",
+                btn_set: "設定",
+                lbl_presets: "クイックプリセット",
+                lbl_expense_desc: "支出の説明",
+                ph_expense_desc: "例：本、スナック",
+                lbl_amount: "金額 ($)",
+                lbl_category: "カテゴリ",
+                cat_food: "食費・スナック",
+                cat_supplies: "学用品",
+                cat_transport: "交通費",
+                cat_entertainment: "娯楽",
+                cat_other: "その他",
+                cat_all: "すべてのカテゴリ",
+                lbl_receipt: "レシート画像 (任意)",
+                btn_add_expense: "支出を追加",
+                title_pot_splitter: "お小遣い自動分配",
+                sub_pot_splitter: "お小遣いを「生活費50%」「貯金30%」「娯楽20%」に自動で振り分けます。",
+                pot_everyday: "生活費 (50%):",
+                pot_savings: "貯金 (30%):",
+                pot_fun: "娯楽 (20%):",
+                title_afford_calc: "「これ買える？」計算機",
+                lbl_purchase_price: "欲しい商品の価格 ($)",
+                lbl_target_days: "目標日数 (日)",
+                btn_calc_pace: "ペースを計算",
+                title_savings_goal: "貯金目標",
+                ph_target: "目標額 ($)",
+                lbl_progress: "進捗",
+                goal_current: "現在の目標:",
+                title_avatar_custom: "アバターカスタマイズ",
+                lbl_unlock_frame: "解放可能なアバターフレーム",
+                opt_frame_default: "デフォルトフレーム",
+                opt_frame_gold: "ゴールド枠 (100 XPで解放)",
+                opt_frame_neon: "ネオンエメラルド (250 XPで解放)",
+                opt_frame_cosmic: "コズミックパープル (500 XPで解放)",
+                title_fin_advice: "マネーアドバイス",
+                advice_default: "今月のお小遣いを設定してアドバイスを受け取りましょう！",
+                title_challenges: "貯金チャレンジ",
+                challenge_52w: "52週間貯金チャレンジ",
+                lbl_week: "週目",
+                sub_52w: "今週は$1、来週は$2と、毎週$1ずつ増やして貯金しましょう！",
+                btn_deposit: "入金",
+                btn_complete: "完了",
+                challenge_nospend: "ノーペンド（無駄遣いゼロ）週末",
+                sub_nospend: "土曜日と日曜日の無駄遣いをゼロに抑えましょう。",
+                btn_claim_xp: "報酬 (+50 XP) を獲得",
+                title_expense_history: "支出履歴",
+                ph_search: "🔍 説明を検索...",
+                no_matching: "該当する支出が見つかりません。",
+                level_title: "レベル",
+                rank_saver: "セーバー",
+                daily_total: "日別支出合計 ($)"
+            },
+            ko: {
+                login_title: "학생 로그인",
+                ph_username: "사용자 이름 입력",
+                ph_password: "비밀번호 입력",
+                btn_signin: "로그인",
+                welcome: "환영합니다",
+                btn_backup: "💾 JSON 백업",
+                btn_import: "📂 JSON 불러오기",
+                btn_print: "🖨 인쇄",
+                btn_logout: "로그아웃",
+                card_streak: "저축 스트릭",
+                card_allowance: "이번 달 용돈",
+                card_spent: "총 지출액",
+                card_balance: "남은 잔액",
+                title_cat_breakdown: "카테고리별 지출",
+                title_spending_trend: "지출 트렌드",
+                title_budget_actual: "예산 대비 실지출",
+                title_badges: "배지 및 업적",
+                badge_first: "첫 기록",
+                badge_saved: "$100 저축",
+                badge_streak: "3일 연속",
+                badge_goal: "목표 달성",
+                badge_five: "5회 기록",
+                title_set_allowance: "용돈 설정 및 지출 추가",
+                lbl_allowance: "총 용돈 설정/업데이트 ($)",
+                btn_set: "설정",
+                lbl_presets: "빠른 프리셋",
+                lbl_expense_desc: "지출 내역",
+                ph_expense_desc: "예: 책, 간식",
+                lbl_amount: "금액 ($)",
+                lbl_category: "카테고리",
+                cat_food: "식비 및 간식",
+                cat_supplies: "학용품",
+                cat_transport: "교통비",
+                cat_entertainment: "문화/오락",
+                cat_other: "기타",
+                cat_all: "모든 카테고리",
+                lbl_receipt: "영수증 이미지 (선택)",
+                btn_add_expense: "지출 추가",
+                title_pot_splitter: "용돈 자동 분배 (50/30/20 법칙)",
+                sub_pot_splitter: "용돈을 생활비(50%), 저축(30%), 문화비(20%)로 자동 분배합니다.",
+                pot_everyday: "생활비 (50%):",
+                pot_savings: "저축 (30%):",
+                pot_fun: "문화/오락 (20%):",
+                title_afford_calc: '"이거 살 수 있을까?" 계산기',
+                lbl_purchase_price: "구매하고 싶은 상품 가격 ($)",
+                lbl_target_days: "목표 기간 (일)",
+                btn_calc_pace: "절약 페이스 계산",
+                title_savings_goal: "저축 목표",
+                ph_target: "목표 금액 ($)",
+                lbl_progress: "진행률",
+                goal_current: "현재 목표:",
+                title_avatar_custom: "아바타 커스텀",
+                lbl_unlock_frame: "해금 가능한 아바타 프레임",
+                opt_frame_default: "기본 프레임",
+                opt_frame_gold: "골드 테두리 (100 XP 해금)",
+                opt_frame_neon: "네온 에메랄드 (250 XP 해금)",
+                opt_frame_cosmic: "코스믹 퍼플 (500 XP 해금)",
+                title_fin_advice: "금융 팁",
+                advice_default: "월 용돈을 설정하고 맞춤형 금융 팁을 받아보세요!",
+                title_challenges: "저축 챌린지",
+                challenge_52w: "52주 저축 챌린지",
+                lbl_week: "주차",
+                sub_52w: "이번 주는 $1, 다음 주는 $2씩 매주 금액을 늘려 저축해보세요!",
+                btn_deposit: "입금",
+                btn_complete: "완료",
+                challenge_nospend: "무지출 주말 챌린지",
+                sub_nospend: "토요일과 일요일 동안 불필요한 지출을 0으로 유지해보세요.",
+                btn_claim_xp: "보상 (+50 XP) 받기",
+                title_expense_history: "지출 내역",
+                ph_search: "🔍 내역 검색...",
+                no_matching: "일치하는 지출 내역이 없습니다.",
+                level_title: "레벨",
+                rank_saver: "세이버",
+                daily_total: "일별 총 지출 ($)"
+            }
+        };
+
+        // Category Specific Budget Limits
+        const CATEGORY_LIMITS = {
+            "Food & Snacks": 80,
+            "School Supplies": 40,
+            "Transportation": 30,
+            "Entertainment": 50,
+            "Other": 50
+        };
+
+        // Application State
+        let appState = {
+            currentUser: null,
+            allowance: 0,
+            goal: 0,
+            expenses: [],
+            recurring: [],
+            streak: 0,
+            lastStreakDate: null,
+            xp: 0,
+            level: 1,
+            challengeWeek: 1,
+            avatarFrame: 'none',
+            lang: localStorage.getItem('budgetApp_lang') || 'en',
+            darkMode: localStorage.getItem('budgetApp_theme') === 'dark'
+        };
+
+        // Chart Instances
+        let categoryChartInstance = null;
+        let trendChartInstance = null;
+
+        // DOM Elements
+        const loginModal = document.getElementById('loginModal');
+        const loginForm = document.getElementById('loginForm');
+        const appContainer = document.getElementById('appContainer');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const themeBtn = document.getElementById('themeBtn');
+        const langSelect = document.getElementById('langSelect');
+        const userDisplayName = document.getElementById('userDisplayName');
+        const userRank = document.getElementById('userRank');
+        const streakCount = document.getElementById('streakCount');
+        const xpDisplay = document.getElementById('xpDisplay');
+        const nextXpDisplay = document.getElementById('nextXpDisplay');
+        const xpBarFill = document.getElementById('xpBarFill');
+        const avatarDisplay = document.getElementById('avatarDisplay');
+        const frameSelect = document.getElementById('frameSelect');
+
+        const allowanceForm = document.getElementById('allowanceForm');
+        const expenseForm = document.getElementById('expenseForm');
+        const savingsGoalForm = document.getElementById('savingsGoalForm');
+        const affordForm = document.getElementById('affordForm');
+
+        const displayAllowance = document.getElementById('displayAllowance');
+        const displaySpent = document.getElementById('displaySpent');
+        const displayBalance = document.getElementById('displayBalance');
+        
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        const goalStatus = document.getElementById('goalStatus');
+        const adviceText = document.getElementById('adviceText');
+        const expenseList = document.getElementById('expenseList');
+        const searchInput = document.getElementById('searchInput');
+        const filterCategory = document.getElementById('filterCategory');
+        const budgetProgressList = document.getElementById('budgetProgressList');
+
+        // Backup & Restore Inputs
+        const exportCsvBtn = document.getElementById('exportCsvBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const importJsonBtn = document.getElementById('importJsonBtn');
+        const jsonFileInput = document.getElementById('jsonFileInput');
+        const printReportBtn = document.getElementById('printReportBtn');
+
+        // Page Load Init
+        window.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+            langSelect.value = appState.lang;
+            applyTranslations();
+            const savedUser = localStorage.getItem('budgetApp_currentUser');
+            if (savedUser) loginUser(savedUser);
+        });
+
+        // Translation Selector Listener
+        langSelect.addEventListener('change', (e) => {
+            appState.lang = e.target.value;
+            localStorage.setItem('budgetApp_lang', appState.lang);
+            applyTranslations();
+            updateUI();
+        });
+
+        function applyTranslations() {
+            const lang = appState.lang;
+            const dict = i18n[lang] || i18n.en;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.textContent = dict[key];
+            });
+
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (dict[key]) el.placeholder = dict[key];
+            });
+        }
+
+        // Theme Toggle
+        themeBtn.addEventListener('click', () => {
+            appState.darkMode = !appState.darkMode;
+            localStorage.setItem('budgetApp_theme', appState.darkMode ? 'dark' : 'light');
+            applyTheme();
+        });
+
+        function applyTheme() {
+            if (appState.darkMode) {
+                document.body.classList.add('dark-mode');
+                themeBtn.textContent = '☀️ Light Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeBtn.textContent = '🌙 Dark Mode';
+            }
+        }
+
+        // Login & Session
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('usernameInput').value.trim();
+            if (user) loginUser(user);
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('budgetApp_currentUser');
+            appState.currentUser = null;
+            appContainer.classList.add('hidden');
+            loginModal.classList.remove('hidden');
+        });
+
+        function loginUser(username) {
+            appState.currentUser = username;
+            localStorage.setItem('budgetApp_currentUser', username);
+            userDisplayName.textContent = username;
+
+            loginModal.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+
+            loadUserData();
+            checkDailyStreak();
+            initCharts();
+            updateUI();
+        }
+
+        // Data Storage Management
+        function saveUserData() {
+            if (!appState.currentUser) return;
+            localStorage.setItem(`budgetApp_data_${appState.currentUser}`, JSON.stringify(appState));
+        }
+
+        function loadUserData() {
+            const data = localStorage.getItem(`budgetApp_data_${appState.currentUser}`);
+            if (data) {
+                appState = { ...appState, ...JSON.parse(data) };
+            }
+            frameSelect.value = appState.avatarFrame || 'none';
+            document.body.className = appState.darkMode ? 'dark-mode ' + appState.avatarFrame : appState.avatarFrame;
+        }
+
+        // XP & Level Progression System
+        function addXP(points) {
+            appState.xp += points;
+            const nextLevelXp = appState.level * 100;
+            if (appState.xp >= nextLevelXp) {
+                appState.level += 1;
+                alert(`🎉 Level Up! You reached Level ${appState.level}!`);
+            }
+            saveUserData();
+            updateUI();
+        }
+
+        // Backup and Export Actions
+        exportCsvBtn.addEventListener('click', () => {
+            let csv = "Date,Title,Category,Amount\n";
+            appState.expenses.forEach(e => csv += `"${e.date}","${e.title}","${e.category}",-${e.amount}\n`);
+            downloadBlob(csv, `Budget_${appState.currentUser}.csv`, 'text/csv');
+        });
+
+        exportJsonBtn.addEventListener('click', () => {
+            const dataStr = JSON.stringify(appState, null, 2);
+            downloadBlob(dataStr, `Budget_Backup_${appState.currentUser}.json`, 'application/json');
+        });
+
+        importJsonBtn.addEventListener('click', () => jsonFileInput.click());
+
+        jsonFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    appState = { ...appState, ...imported };
+                    saveUserData();
+                    updateUI();
+                    alert('Data imported successfully!');
+                } catch (err) {
+                    alert('Invalid JSON File Format.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function downloadBlob(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        printReportBtn.addEventListener('click', () => window.print());
+
+        // Gamification & Daily Streaks
+        function checkDailyStreak() {
+            const today = new Date().toDateString();
+            const totalSpent = appState.expenses.reduce((acc, curr) => acc + curr.amount, 0);
+            const remaining = appState.allowance - totalSpent;
+
+            if (appState.lastStreakDate !== today) {
+                if (remaining >= 0 && appState.allowance > 0) {
+                    appState.streak += 1;
+                    appState.lastStreakDate = today;
+                    addXP(20);
+                }
+            }
+        }
+
+        // Form Event Handlers
+        allowanceForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const val = parseFloat(document.getElementById('allowanceInput').value);
+            if (!isNaN(val) && val >= 0) {
+                appState.allowance = val;
+                addXP(10);
+                saveUserData();
+                updateUI();
+                document.getElementById('allowanceInput').value = '';
+            }
+        });
+
+        expenseForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('expenseTitle').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const category = document.getElementById('expenseCategory').value;
+            const receiptFile = document.getElementById('receiptInput').files[0];
+
+            if (title && !isNaN(amount) && amount > 0) {
+                if (receiptFile) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        saveExpenseItem(title, amount, category, event.target.result);
+                    };
+                    reader.readAsDataURL(receiptFile);
+                } else {
+                    saveExpenseItem(title, amount, category, null);
+                }
+            }
+        });
+
+        function saveExpenseItem(title, amount, category, receiptData) {
+            appState.expenses.unshift({
+                id: Date.now(),
+                title,
+                amount,
+                category,
+                receipt: receiptData,
+                date: new Date().toLocaleDateString()
+            });
+            addXP(15);
+            document.getElementById('expenseTitle').value = '';
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('receiptInput').value = '';
+            saveUserData();
+            updateUI();
+        }
+
+        function addPresetExpense(title, amount, category) {
+            saveExpenseItem(title, amount, category, null);
+        }
+
+        savingsGoalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const val = parseFloat(document.getElementById('goalInput').value);
+            if (!isNaN(val) && val >= 0) {
+                appState.goal = val;
+                saveUserData();
+                updateUI();
+                document.getElementById('goalInput').value = '';
+            }
+        });
+
+        // "Can I Afford This?" Calculator
+        affordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            const days = parseInt(document.getElementById('targetDays').value);
+            const totalSpent = appState.expenses.reduce((acc, curr) => acc + curr.amount, 0);
+            const remaining = appState.allowance - totalSpent;
+
+            const resDiv = document.getElementById('affordResult');
+            resDiv.classList.remove('hidden');
+
+            if (price <= remaining) {
+                resDiv.innerHTML = `✅ <b>You can afford this now!</b> You have $${remaining.toFixed(2)} in remaining balance.`;
+            } else {
+                const deficit = price - remaining;
+                const dailySavingNeeded = deficit / days;
+                resDiv.innerHTML = `
+                    💡 <b>Savings Strategy:</b><br>
+                    • Price Shortfall: $${deficit.toFixed(2)}<br>
+                    • To buy it in <b>${days} days</b>, you must save an extra <b>$${dailySavingNeeded.toFixed(2)}/day</b>.
+                `;
+            }
+        });
+
+        // Frame Customization Handler
+        frameSelect.addEventListener('change', (e) => {
+            const frame = e.target.value;
+            const reqXp = frame === 'frame-gold' ? 100 : frame === 'frame-neon' ? 250 : frame === 'frame-cosmic' ? 500 : 0;
+            if (appState.xp < reqXp) {
+                alert(`Locked! You need ${reqXp} XP to equip this frame.`);
+                frameSelect.value = appState.avatarFrame;
+                return;
+            }
+            appState.avatarFrame = frame;
+            document.body.className = appState.darkMode ? 'dark-mode ' + frame : frame;
+            saveUserData();
+        });
+
+        // Challenges Buttons
+        document.getElementById('completeWeekBtn').addEventListener('click', () => {
+            const amt = appState.challengeWeek;
+            saveExpenseItem(`52-Week Challenge Deposit (Wk ${amt})`, amt, 'Other', null);
+            appState.challengeWeek += 1;
+            addXP(30);
+        });
+
+        document.getElementById('claimNoSpendBtn').addEventListener('click', () => {
+            addXP(50);
+            alert('🎉 No-Spend Reward Claimed! +50 XP');
+        });
+
+        function deleteExpense(id) {
+            appState.expenses = appState.expenses.filter(i => i.id !== id);
+            saveUserData();
+            updateUI();
+        }
+
+        // Charts Initialization & Render
+        function initCharts() {
+            const ctx1 = document.getElementById('categoryChart').getContext('2d');
+            categoryChartInstance = new Chart(ctx1, {
+                type: 'pie',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'] }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const ctx2 = document.getElementById('trendChart').getContext('2d');
+            trendChartInstance = new Chart(ctx2, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'Daily Total Spent ($)', data: [], borderColor: '#4f46e5', fill: false }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateCharts() {
+            if (!categoryChartInstance || !trendChartInstance) return;
+
+            const dict = i18n[appState.lang] || i18n.en;
+
+            // Category Breakdown Chart
+            const catTotals = {};
+            appState.expenses.forEach(e => {
+                const localizedCat = dict[`cat_${getCatKey(e.category)}`] || e.category;
+                catTotals[localizedCat] = (catTotals[localizedCat] || 0) + e.amount;
+            });
+            categoryChartInstance.data.labels = Object.keys(catTotals);
+            categoryChartInstance.data.datasets[0].data = Object.values(catTotals);
+            categoryChartInstance.update();
+
+            // Spending Trend Line Chart
+            const dateTotals = {};
+            appState.expenses.slice().reverse().forEach(e => {
+                dateTotals[e.date] = (dateTotals[e.date] || 0) + e.amount;
+            });
+            trendChartInstance.data.labels = Object.keys(dateTotals);
+            trendChartInstance.data.datasets[0].data = Object.values(dateTotals);
+            trendChartInstance.data.datasets[0].label = dict.daily_total;
+            trendChartInstance.update();
+        }
+
+        function getCatKey(cat) {
+            switch(cat) {
+                case 'Food & Snacks': return 'food';
+                case 'School Supplies': return 'supplies';
+                case 'Transportation': return 'transport';
+                case 'Entertainment': return 'entertainment';
+                default: return 'other';
+            }
+        }
+
+        // Render Main UI Component
+        function updateUI() {
+            const dict = i18n[appState.lang] || i18n.en;
+            const totalSpent = appState.expenses.reduce((a, b) => a + b.amount, 0);
+            const remaining = appState.allowance - totalSpent;
+
+            displayAllowance.textContent = `$${appState.allowance.toFixed(2)}`;
+            displaySpent.textContent = `$${totalSpent.toFixed(2)}`;
+            displayBalance.textContent = `$${remaining.toFixed(2)}`;
+            streakCount.textContent = `${appState.streak} Days 🔥`;
+
+            // XP and Level Progress Updates
+            userRank.textContent = `${dict.level_title} ${appState.level} ${dict.rank_saver}`;
+            xpDisplay.textContent = appState.xp;
+            const nextXp = appState.level * 100;
+            nextXpDisplay.textContent = nextXp;
+            xpBarFill.style.width = `${Math.min((appState.xp / nextXp) * 100, 100)}%`;
+
+            // Render Pot Splitter
+            const pot = document.getElementById('potSplitterDisplay');
+            pot.innerHTML = `
+                <div><b>${dict.pot_everyday}</b> $${(appState.allowance * 0.5).toFixed(2)}</div>
+                <div><b>${dict.pot_savings}</b> $${(appState.allowance * 0.3).toFixed(2)}</div>
+                <div><b>${dict.pot_fun}</b> $${(appState.allowance * 0.2).toFixed(2)}</div>
+            `;
+
+            // Savings Goal Progress
+            goalStatus.textContent = `${dict.goal_current} $${appState.goal.toFixed(2)}`;
+            let pct = appState.goal > 0 ? Math.min(Math.max((remaining / appState.goal) * 100, 0), 100) : 0;
+            progressBar.style.width = `${pct}%`;
+            progressPercent.textContent = `${pct.toFixed(0)}%`;
+
+            // Challenge Week Text
+            document.getElementById('currentWeekNum').textContent = appState.challengeWeek;
+            document.getElementById('weekDepositAmount').textContent = appState.challengeWeek;
+
+            // Budget vs. Actual Progress Bars
+            budgetProgressList.innerHTML = '';
+            Object.keys(CATEGORY_LIMITS).forEach(cat => {
+                const spentCat = appState.expenses.filter(e => e.category === cat).reduce((a, b) => a + b.amount, 0);
+                const limit = CATEGORY_LIMITS[cat];
+                const catPct = Math.min((spentCat / limit) * 100, 100);
+                const isOver = spentCat > limit;
+                const localizedCat = dict[`cat_${getCatKey(cat)}`] || cat;
+
+                const div = document.createElement('div');
+                div.style.marginBottom = '8px';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                        <span>${localizedCat}</span>
+                        <span style="color:${isOver ? 'var(--danger)' : 'var(--text-muted)'}">${spentCat.toFixed(2)} / $${limit}</span>
+                    </div>
+                    <div class="progress-container" style="height:8px;">
+                        <div class="progress-bar" style="width:${catPct}%; background:${isOver ? 'var(--danger)' : 'var(--primary)'}"></div>
+                    </div>
+                `;
+                budgetProgressList.appendChild(div);
+            });
+
+            // Expense History Listing with Search & Filter
+            renderExpenseList();
+            updateCharts();
+        }
+
+        // Search & Filter Listeners
+        searchInput.addEventListener('input', renderExpenseList);
+        filterCategory.addEventListener('change', renderExpenseList);
+
+        function renderExpenseList() {
+            const dict = i18n[appState.lang] || i18n.en;
+            const query = searchInput.value.toLowerCase();
+            const cat = filterCategory.value;
+
+            const filtered = appState.expenses.filter(e => {
+                const matchesSearch = e.title.toLowerCase().includes(query);
+                const matchesCat = cat === 'ALL' || e.category === cat;
+                return matchesSearch && matchesCat;
+            });
+
+            expenseList.innerHTML = '';
+            if (filtered.length === 0) {
+                expenseList.innerHTML = `<li style="color: var(--text-muted); font-size: 0.85rem;">${dict.no_matching}</li>`;
+            } else {
+                filtered.forEach(item => {
+                    const localizedCat = dict[`cat_${getCatKey(item.category)}`] || item.category;
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.innerHTML = `
+                        <div style="display:flex; align-items:center;">
+                            ${item.receipt ? `<img src="${item.receipt}" class="receipt-preview" onclick="openReceipt('${item.receipt}')">` : ''}
+                            <div class="item-info">
+                                <span class="item-title">${escapeHTML(item.title)}</span>
+                                <span class="item-sub">${localizedCat} • ${item.date}</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-weight: 600; color: var(--danger);">-$${item.amount.toFixed(2)}</span>
+                            <button class="delete-btn" onclick="deleteExpense(${item.id})">&times;</button>
+                        </div>
+                    `;
+                    expenseList.appendChild(li);
+                });
+            }
+        }
+
+        function openReceipt(src) {
+            document.getElementById('fullReceiptImg').src = src;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        }
+    </script>
+</body>
+</html>
+
+  <script>
+    
+  </script>
+</body>
+</html>
